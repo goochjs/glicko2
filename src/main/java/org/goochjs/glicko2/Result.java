@@ -19,7 +19,7 @@ public class Result {
 	private Glicko2Rating loser;
 	
 	public Result(Glicko2Rating winner, Glicko2Rating loser) {
-		if ( invalidPlayers(winner, loser) ) {
+		if ( ! validPlayers(winner, loser) ) {
 			throw new IllegalArgumentException();
 		}
 
@@ -28,7 +28,7 @@ public class Result {
 	}
 	
 	public Result(Glicko2Rating player1, Glicko2Rating player2, boolean isDraw) {
-		if (! isDraw || invalidPlayers(player1, player2) ) {
+		if (! isDraw || ! validPlayers(player1, player2) ) {
 			throw new IllegalArgumentException();
 		}
 		
@@ -37,7 +37,7 @@ public class Result {
 		this.isDraw = true;
 	}
 
-	private boolean invalidPlayers(Glicko2Rating player1, Glicko2Rating player2) {
+	private boolean validPlayers(Glicko2Rating player1, Glicko2Rating player2) {
 		if (player1.equals(player2)) {
 			return false;
 		} else {

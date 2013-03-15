@@ -45,7 +45,7 @@ public class Glicko2Rating {
 	}
 
 	public void setRating(double rating) {
-		this.setRating( rating );
+		this.rating = rating;
 	}
 
 	public double getGlicko2Rating() {

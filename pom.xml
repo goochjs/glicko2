@@ -18,27 +18,13 @@
 
 
 	<dependencies>
-		<dependency>
-    		<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>1.6.2</version>
-    		</dependency>
-    	
 		<!-- jUnit -->
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
-
-		<!-- Aspectj -->
-
-<!-- 		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-		</dependency> -->
 	</dependencies>
 
 	<build>

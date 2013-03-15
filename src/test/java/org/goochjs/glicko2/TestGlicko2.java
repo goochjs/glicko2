@@ -3,7 +3,7 @@
  */
 package org.goochjs.glicko2;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -44,8 +44,8 @@ public class TestGlicko2 {
 		System.out.println("opp3   " + opp3.getRating() + " / " + opp3.getRatingDeviation());
 
 		// test that the player's new rating and deviation have been calculated correctly
-		assertEquals( 1464.06, player.getRating(), 0.00001 );
-		assertEquals( 151.52, player.getRatingDeviation(), 0.00001 );
+		assertEquals( 1464.06, player.getRating(), 0.001 );
+		assertEquals( 151.52, player.getRatingDeviation(), 0.001 );
 	}
 	
 	private void initialise() {

@@ -4,8 +4,9 @@
 package org.goochjs.glicko2;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.Set;
 
 /**
  * @author Jeremy Gooch
@@ -40,8 +41,8 @@ public class RatingPeriodResults {
 		return filteredResults;
 	}
 
-	public TreeSet<Glicko2Rating> getParticipants() {
-		TreeSet<Glicko2Rating> participants = new TreeSet<Glicko2Rating>(); 
+	public Set<Glicko2Rating> getParticipants() {
+		Set<Glicko2Rating> participants = new HashSet<Glicko2Rating>(); 
 		
 		for ( Result result : results ) {
 			participants.add(result.getWinner());
