@@ -31,11 +31,6 @@ public class Glicko2RatingCalculator {
 	}
 
 	public void updateRatings(RatingPeriodResults results) {
-		// TODO take copy of the ratings
-		// build a list of the participants (method against the results object)
-		// iterate through the list, using the copy of the ratings as input data,
-		// and update each player's original rating object with the result
-		
 		// the following will run through all players and calculate their new ratings
 		// these are stored in a "working" are in the Rating object to avoid doing
 		// calculations against a moving target
