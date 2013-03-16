@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2013 Jeremy Gooch <http://www.linkedin.com/in/jeremygooch/>
+ *
+ * The licence covering the contents of this file is described in the file LICENCE.txt,
+ * which should have been included as part of the distribution containing this file.
+ */
+
 package org.goochjs.glicko2;
 
 import java.util.List;
@@ -10,7 +17,7 @@ import java.util.List;
  * 
  * @param <T>
  */
-public class Glicko2RatingCalculator {
+public class RatingCalculator {
 
 	private final static double DEFAULT_RATING =  1500.0;
 	private final static double DEFAULT_DEVIATION =  350;
@@ -19,27 +26,38 @@ public class Glicko2RatingCalculator {
 	private final static double MULTIPLIER =  173.7178;
 	private final static double CONVERGENCE_TOLERANCE =  0.000001;
 	
-	private double tau = DEFAULT_TAU; // constrains volatility over time
-	private double defaultVolatility = DEFAULT_VOLATILITY;
+	private double tau; // constrains volatility over time
+	private double defaultVolatility;
 	
-	public Glicko2RatingCalculator(
+	public RatingCalculator() {
+		tau = DEFAULT_TAU;
+		defaultVolatility = DEFAULT_VOLATILITY;
+	}
+
+	public RatingCalculator(
 			double initVolatility,
-			double initVolatilityOverTime) {
+			double tau) {
 		
 		this.defaultVolatility = initVolatility;
-		this.tau = initVolatilityOverTime;
+		this.tau = tau;
 	}
 
 	public void updateRatings(RatingPeriodResults results) {
 		// the following will run through all players and calculate their new ratings
-		// these are stored in a "working" are in the Rating object to avoid doing
-		// calculations against a moving target
-		for ( Glicko2Rating player : results.getParticipants() ) {
-			calculateNewRating(player, results.getResults(player));
+		for ( Rating player : results.getParticipants() ) {
+			if ( results.getResults(player).size() > 0 ) {
+				calculateNewRating(player, results.getResults(player));
+			} else {
+				// if a player does not compete during the rating period, then only Step 6 applies.
+				// the player's rating and volatility parameters remain the same but deviation increases
+				player.setWorkingRating(player.getGlicko2Rating());
+				player.setWorkingRatingDeviation(calculateNewRD(player.getGlicko2RatingDeviation(), player.getVolatility()));
+				player.setWorkingVolatility(player.getVolatility());
+			}
 		}
 		
-		// now iterate through the participants and move their working ratings over
-		for ( Glicko2Rating player : results.getParticipants() ) {
+		// now iterate through the participants and confirm their new ratings
+		for ( Rating player : results.getParticipants() ) {
 			player.finaliseRating();
 		}
 		
@@ -47,7 +65,7 @@ public class Glicko2RatingCalculator {
 		results.clear();
 	}
 
-	private void calculateNewRating(Glicko2Rating player, List<Result> results) {
+	private void calculateNewRating(Rating player, List<Result> results) {
 		// this is the function processing described in step 5 of Glickman's paper
 		double phi = player.getGlicko2RatingDeviation();
 		double sigma = player.getVolatility();
@@ -92,13 +110,16 @@ public class Glicko2RatingCalculator {
  		
 		double newSigma = Math.exp( A/2.0 );
  		
-		double phiStar = Math.sqrt( Math.pow(phi, 2) + Math.pow(newSigma, 2) );
+		player.setWorkingVolatility(newSigma);
 
 		// Step 6
-		double newPhi = 1.0 / Math.sqrt(( 1.0 / Math.pow(phiStar, 2) ) + ( 1.0 / v ));
-		player.setWorkingVolatility(newPhi);
+		double phiStar = calculateNewRD( phi, newSigma );
 		
 		// Step 7
+		double newPhi = 1.0 / Math.sqrt(( 1.0 / Math.pow(phiStar, 2) ) + ( 1.0 / v ));
+
+		// note that the newly calculated rating values are stored in a "working" area in the Rating object
+		// this avoids us attempting to calculate subsequent participants' ratings against a moving target
 		player.setWorkingRating(
 				player.getGlicko2Rating()
 				+ ( Math.pow(newPhi, 2) * outcomeBasedRating(player, results)));
@@ -122,7 +143,7 @@ public class Glicko2RatingCalculator {
 		return 1.0 / (1.0 + Math.exp( -1.0 * g(opponentDeviation) * ( playerRating - opponentRating )));
 	}
 	
-	private double v(Glicko2Rating player, List<Result> results) {
+	private double v(Rating player, List<Result> results) {
 		// this is the main function in step 3 of Glickman's paper
 		double v = 0.0;
 		
@@ -141,12 +162,12 @@ public class Glicko2RatingCalculator {
 		return Math.pow(v, -1);
 	}
 	
-	private double delta(Glicko2Rating player, List<Result> results) {
+	private double delta(Rating player, List<Result> results) {
 		// this is the formula in step 4 of Glickman's paper
 		return v(player, results) * outcomeBasedRating(player, results);
 	}
 	
-	private double outcomeBasedRating(Glicko2Rating player, List<Result> results) {
+	private double outcomeBasedRating(Rating player, List<Result> results) {
 		// this is the formula in step 4 of Glickman's paper
 		double outcomeBasedRating = 0;
 		
@@ -163,6 +184,12 @@ public class Glicko2RatingCalculator {
 		return outcomeBasedRating;
 	}
 	
+	private double calculateNewRD(double phi, double sigma) {
+		// this is the formula defined in step 6 and also used for players
+		// who have not competed during the rating period
+		return Math.sqrt( Math.pow(phi, 2) + Math.pow(sigma, 2) );
+	}
+
 	public static double convertRatingToOriginalGlickoScale(double rating) {
 		// converts from the value used within the algorithm to a rating in the same range as traditional Elo et al
 		return ( ( rating  * MULTIPLIER ) + DEFAULT_RATING );

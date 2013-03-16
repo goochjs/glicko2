@@ -1,6 +1,10 @@
-/**
- * 
+/*
+ * Copyright (C) 2013 Jeremy Gooch <http://www.linkedin.com/in/jeremygooch/>
+ *
+ * The licence covering the contents of this file is described in the file LICENCE.txt,
+ * which should have been included as part of the distribution containing this file.
  */
+
 package org.goochjs.glicko2;
 
 /**
@@ -15,10 +19,10 @@ public class Result {
 	private static final double POINTS_FOR_DRAW = 0.5;
 	
 	private boolean isDraw = false;
-	private Glicko2Rating winner;
-	private Glicko2Rating loser;
+	private Rating winner;
+	private Rating loser;
 	
-	public Result(Glicko2Rating winner, Glicko2Rating loser) {
+	public Result(Rating winner, Rating loser) {
 		if ( ! validPlayers(winner, loser) ) {
 			throw new IllegalArgumentException();
 		}
@@ -27,7 +31,7 @@ public class Result {
 		this.loser = loser;
 	}
 	
-	public Result(Glicko2Rating player1, Glicko2Rating player2, boolean isDraw) {
+	public Result(Rating player1, Rating player2, boolean isDraw) {
 		if (! isDraw || ! validPlayers(player1, player2) ) {
 			throw new IllegalArgumentException();
 		}
@@ -37,7 +41,7 @@ public class Result {
 		this.isDraw = true;
 	}
 
-	private boolean validPlayers(Glicko2Rating player1, Glicko2Rating player2) {
+	private boolean validPlayers(Rating player1, Rating player2) {
 		if (player1.equals(player2)) {
 			return false;
 		} else {
@@ -45,7 +49,7 @@ public class Result {
 		}
 	}
 	
-	public boolean participated(Glicko2Rating player) {
+	public boolean participated(Rating player) {
 		if ( winner.equals(player) || loser.equals(player) ) {
 			return true;
 		} else {
@@ -53,7 +57,7 @@ public class Result {
 		}
 	}
 	
-	public double getScore(Glicko2Rating player) throws IllegalArgumentException {
+	public double getScore(Rating player) throws IllegalArgumentException {
 		double score;
 		
 		if ( winner.equals(player) ) {
@@ -71,8 +75,8 @@ public class Result {
 		return score;
 	}
 	
-	public Glicko2Rating getOpponent(Glicko2Rating player) {
-		Glicko2Rating opponent;
+	public Rating getOpponent(Rating player) {
+		Rating opponent;
 		
 		if ( winner.equals(player) ) {
 			opponent = loser;
@@ -85,11 +89,11 @@ public class Result {
 		return opponent;
 	}
 	
-	public Glicko2Rating getWinner() {
+	public Rating getWinner() {
 		return this.winner;
 	}
 
-	public Glicko2Rating getLoser() {
+	public Rating getLoser() {
 		return this.loser;
 	}
 }

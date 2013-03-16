@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2013 Jeremy Gooch <http://www.linkedin.com/in/jeremygooch/>
+ *
+ * The licence covering the contents of this file is described in the file LICENCE.txt,
+ * which should have been included as part of the distribution containing this file.
+ */
+
 package org.goochjs.glicko2;
 
 /**
@@ -13,7 +20,7 @@ package org.goochjs.glicko2;
  * Our implementation of the rating records them at the original scale.
  */
 
-public class Glicko2Rating {
+public class Rating {
 
 	private String uid; // not actually used by the calculation engine but useful to track whose rating is whose
 	private double rating;
@@ -26,14 +33,14 @@ public class Glicko2Rating {
 	private double workingRatingDeviation;
 	private double workingVolatility;
 	
-	public Glicko2Rating(String uid, Glicko2RatingCalculator ratingSystem) {
+	public Rating(String uid, RatingCalculator ratingSystem) {
 		this.uid = uid;
 		this.rating = ratingSystem.getDefaultRating();
 		this.ratingDeviation = ratingSystem.getDefaultRatingDeviation();
 		this.volatility = ratingSystem.getDefaultVolatility();
 	}
 
-	public Glicko2Rating(String uid, Glicko2RatingCalculator ratingSystem, double initRating, double initRatingDeviation, double initVolatility) {
+	public Rating(String uid, RatingCalculator ratingSystem, double initRating, double initRatingDeviation, double initVolatility) {
 		this.uid = uid;
 		this.rating = initRating;
 		this.ratingDeviation = initRatingDeviation;
@@ -50,12 +57,12 @@ public class Glicko2Rating {
 
 	public double getGlicko2Rating() {
 		// return the average skill value of the player scaled down appropriate to the Glicko2 algorithm.
-		return Glicko2RatingCalculator.convertRatingToGlicko2Scale(this.rating);
+		return RatingCalculator.convertRatingToGlicko2Scale(this.rating);
 	}
 
 	public void setGlicko2Rating(double rating) {
 		// take the rating in Glicko2 scale and scale it up to the original Glicko scale.
-		this.rating = Glicko2RatingCalculator.convertRatingToOriginalGlickoScale(rating);
+		this.rating = RatingCalculator.convertRatingToOriginalGlickoScale(rating);
 	}
 
 	public double getVolatility() {
@@ -76,12 +83,12 @@ public class Glicko2Rating {
 
 	public double getGlicko2RatingDeviation() {
 		// return the rating deviation of the player scaled down appropriate to the Glicko2 algorithm.
-		return Glicko2RatingCalculator.convertRatingDeviationToGlicko2Scale( ratingDeviation );
+		return RatingCalculator.convertRatingDeviationToGlicko2Scale( ratingDeviation );
 	}
 
 	public void setGlicko2RatingDeviation(double ratingDeviation) {
 		// take the rating deviation in Glicko2 scale and scale it up to the original Glicko scale.
-		this.ratingDeviation = Glicko2RatingCalculator.convertRatingDeviationToOriginalGlickoScale( ratingDeviation );
+		this.ratingDeviation = RatingCalculator.convertRatingDeviationToOriginalGlickoScale( ratingDeviation );
 	}
 
 	public void finaliseRating() {
