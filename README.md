@@ -5,7 +5,7 @@ Java implementation of the [Glicko-2 rating algorithm](http://www.glicko.net/gli
 
 To use:
 *   instantiate a _RatingCalculator_ object
-    *   at instantiation, you can set the default rating for a player's volatility and the system constant (τ), which constrains changes in volatility over time, for your game or just accept the defaults
+    *   at instantiation, you can set the default rating for a player's volatility and the system constant ("τ", which constrains changes in volatility over time) for your game or just accept the defaults
 *   instantiate a _Rating_ object for each player
 *   instantiate a _RatingPeriodResults_ object
 *   add game results to the _RatingPeriodResults_ object until you reach the end of your rating period
