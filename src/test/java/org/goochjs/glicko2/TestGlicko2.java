@@ -18,7 +18,7 @@ import org.junit.Test;
  */
 public class TestGlicko2 {
 
-	private static RatingCalculator ratingSystem = new RatingCalculator(0.06, 0.5);
+	private RatingCalculator ratingSystem = new RatingCalculator(0.06, 0.5);
 	private RatingPeriodResults results = new RatingPeriodResults();
 	private Rating player1 = new Rating("player1", ratingSystem); // the main player of Glickman's example
 	private Rating player2 = new Rating("player2", ratingSystem); 

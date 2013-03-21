@@ -101,6 +101,15 @@ public class Rating {
 		this.setWorkingVolatility(0);
 	}
 	
+	public String dump() {
+		return uid + " / " +
+				rating + " / " +
+				ratingDeviation + " / " +
+				volatility + " / " +
+				numberOfResults;
+
+	}
+	
 	public int getNumberOfResults() {
 		return numberOfResults;
 	}
