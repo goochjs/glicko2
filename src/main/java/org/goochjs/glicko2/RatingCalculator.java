@@ -4,7 +4,6 @@
  * The licence covering the contents of this file is described in the file LICENCE.txt,
  * which should have been included as part of the distribution containing this file.
  */
-
 package org.goochjs.glicko2;
 
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.List;
  * 
  * @author Jeremy Gooch
  * 
- * @param <T>
  */
 public class RatingCalculator {
 
@@ -29,11 +27,21 @@ public class RatingCalculator {
 	private double tau; // constrains volatility over time
 	private double defaultVolatility;
 	
+	
+	/**
+	 * Standard constructor, taking default values for volatility
+	 */
 	public RatingCalculator() {
 		tau = DEFAULT_TAU;
 		defaultVolatility = DEFAULT_VOLATILITY;
 	}
 
+	
+	/**
+	 * 
+	 * @param initVolatility  Initial volatility for new ratings
+	 * @param tau             How volatility changes over time
+	 */
 	public RatingCalculator(
 			double initVolatility,
 			double tau) {
@@ -42,8 +50,16 @@ public class RatingCalculator {
 		this.tau = tau;
 	}
 
+	
+	/**
+	 * <p>Run through all players within a resultset and calculate their new ratings.</p>
+	 * <p>Players within the resultset who did not compete during the rating period
+	 * will have see their deviation increase (in line with Prof Glickman's paper).</p>
+	 * <p>Note that this method will clear the results held in the association resultset.</p>
+	 * 
+	 * @param results
+	 */
 	public void updateRatings(RatingPeriodResults results) {
-		// the following will run through all players and calculate their new ratings
 		for ( Rating player : results.getParticipants() ) {
 			if ( results.getResults(player).size() > 0 ) {
 				calculateNewRating(player, results.getResults(player));
@@ -65,8 +81,14 @@ public class RatingCalculator {
 		results.clear();
 	}
 
+	
+	/**
+	 * This is the function processing described in step 5 of Glickman's paper.
+	 *  
+	 * @param player
+	 * @param results
+	 */
 	private void calculateNewRating(Rating player, List<Result> results) {
-		// this is the function processing described in step 5 of Glickman's paper
 		double phi = player.getGlicko2RatingDeviation();
 		double sigma = player.getVolatility();
 		double a = Math.log( Math.pow(sigma, 2) );
@@ -133,18 +155,39 @@ public class RatingCalculator {
 				( ( x - a ) / Math.pow(tau, 2) );
 	}
 	
+	
+	/**
+	 * This is the first sub-function of step 3 of Glickman's paper.
+	 * 
+	 * @param deviation
+	 * @return
+	 */
 	private double g(double deviation) {
-		// this is the first sub-function of step 3 of Glickman's paper
 		return 1.0 / ( Math.sqrt( 1.0 + ( 3.0 * Math.pow(deviation, 2) / Math.pow(Math.PI,2) )));
 	}
 	
+	
+	/**
+	 * This is the second sub-function of step 3 of Glickman's paper.
+	 * 
+	 * @param playerRating
+	 * @param opponentRating
+	 * @param opponentDeviation
+	 * @return
+	 */
 	private double E(double playerRating, double opponentRating, double opponentDeviation) {
-		// this is the second sub-function of step 3 of Glickman's paper
 		return 1.0 / (1.0 + Math.exp( -1.0 * g(opponentDeviation) * ( playerRating - opponentRating )));
 	}
 	
+	
+	/**
+	 * This is the main function in step 3 of Glickman's paper.
+	 * 
+	 * @param player
+	 * @param results
+	 * @return
+	 */
 	private double v(Rating player, List<Result> results) {
-		// this is the main function in step 3 of Glickman's paper
 		double v = 0.0;
 		
 		for ( Result result: results ) {
@@ -162,13 +205,27 @@ public class RatingCalculator {
 		return Math.pow(v, -1);
 	}
 	
+	
+	/**
+	 * This is a formula as per step 4 of Glickman's paper.
+	 * 
+	 * @param player
+	 * @param results
+	 * @return delta
+	 */
 	private double delta(Rating player, List<Result> results) {
-		// this is the formula in step 4 of Glickman's paper
 		return v(player, results) * outcomeBasedRating(player, results);
 	}
 	
+	
+	/**
+	 * This is a formula as per step 4 of Glickman's paper.
+	 * 
+	 * @param player
+	 * @param results
+	 * @return expected rating based on game outcomes
+	 */
 	private double outcomeBasedRating(Rating player, List<Result> results) {
-		// this is the formula in step 4 of Glickman's paper
 		double outcomeBasedRating = 0;
 		
 		for ( Result result: results ) {
@@ -184,40 +241,74 @@ public class RatingCalculator {
 		return outcomeBasedRating;
 	}
 	
+	
+	/**
+	 * This is the formula defined in step 6. It is also used for players
+	 * who have not competed during the rating period.
+	 * 
+	 * @param phi
+	 * @param sigma
+	 * @return new rating deviation
+	 */
 	private double calculateNewRD(double phi, double sigma) {
-		// this is the formula defined in step 6 and also used for players
-		// who have not competed during the rating period
 		return Math.sqrt( Math.pow(phi, 2) + Math.pow(sigma, 2) );
 	}
 
+	
+	/**
+	 * Converts from the value used within the algorithm to a rating in the same range as traditional Elo et al
+	 * 
+	 * @param rating in Glicko2 scale
+	 * @return rating in Glicko scale
+	 */
 	public static double convertRatingToOriginalGlickoScale(double rating) {
-		// converts from the value used within the algorithm to a rating in the same range as traditional Elo et al
 		return ( ( rating  * MULTIPLIER ) + DEFAULT_RATING );
 	}
 	
+	
+	/**
+	 * Converts from a rating in the same range as traditional Elo et al to the value used within the algorithm
+	 * 
+	 * @param rating in Glicko scale
+	 * @return rating in Glicko2 scale
+	 */
 	public static double convertRatingToGlicko2Scale(double rating) {
-		// converts from a rating in the same range as traditional Elo et al to the value used within the algorithm 
 		return ( ( rating  - DEFAULT_RATING ) / MULTIPLIER ) ;
 	}
 	
+	
+	/**
+	 * Converts from the value used within the algorithm to a rating deviation in the same range as traditional Elo et al
+	 * 
+	 * @param ratingDeviation in Glicko2 scale
+	 * @return ratingDeviation in Glicko scale
+	 */
 	public static double convertRatingDeviationToOriginalGlickoScale(double ratingDeviation) {
-		// converts from the value used within the algorithm to a rating deviation in the same range as traditional Elo et al
 		return ( ratingDeviation * MULTIPLIER ) ;
 	}
 	
-	public static double convertRatingDeviationToGlicko2Scale(double ratingDeviation) {
-		// converts from a rating deviation in the same range as traditional Elo et al to the value used within the algorithm 
+	
+	/**
+	 * Converts from a rating deviation in the same range as traditional Elo et al to the value used within the algorithm
+	 * 
+	 * @param ratingDeviation in Glicko scale
+	 * @return ratingDeviation in Glicko2 scale
+	 */
+	public static double convertRatingDeviationToGlicko2Scale(double ratingDeviation) { 
 		return ( ratingDeviation / MULTIPLIER );
 	}
 
+	
 	public double getDefaultRating() {
 		return DEFAULT_RATING;
 	}
 
+	
 	public double getDefaultVolatility() {
 		return defaultVolatility;
 	}
 
+	
 	public double getDefaultRatingDeviation() {
 		return DEFAULT_DEVIATION;
 	}

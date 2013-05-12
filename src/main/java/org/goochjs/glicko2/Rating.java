@@ -4,22 +4,17 @@
  * The licence covering the contents of this file is described in the file LICENCE.txt,
  * which should have been included as part of the distribution containing this file.
  */
-
 package org.goochjs.glicko2;
 
 /**
  * Holds an individual's Glicko-2 rating.
  *
- * @author Jeremy Gooch
+ * <p>Glicko-2 ratings are an average skill value, a standard deviation and a volatility (how consistent the player is).
+ * Prof Glickman's paper on the algorithm allows scaling of these values to be more directly comparable with existing rating
+ * systems such as Elo or USCF's derivation thereof. This implementation outputs ratings at this larger scale.</p>
  *
- * @param <T>
- * 
- * Glicko-2 ratings are an average skill value, a standard deviation and a volatility (how consistent the player is).
- * His paper on the algorithm allows scaling of these values to be more directly comparable with existing rating
- * systems such as Elo or USCF's derivation thereof.
- * Our implementation of the rating records them at the original scale.
+ * @author Jeremy Gooch
  */
-
 public class Rating {
 
 	private String uid; // not actually used by the calculation engine but useful to track whose rating is whose
@@ -33,6 +28,11 @@ public class Rating {
 	private double workingRatingDeviation;
 	private double workingVolatility;
 	
+	/**
+	 * 
+	 * @param uid           An value through which you want to identify the rating (not actually used by the algorithm)
+	 * @param ratingSystem  An instance of the RatingCalculator object
+	 */
 	public Rating(String uid, RatingCalculator ratingSystem) {
 		this.uid = uid;
 		this.rating = ratingSystem.getDefaultRating();
@@ -47,6 +47,11 @@ public class Rating {
 		this.volatility = initVolatility;
 	}
 
+	/**
+	 * Return the average skill value of the player.
+	 * 
+	 * @return double
+	 */
 	public double getRating() {
 		return this.rating;
 	}
@@ -55,13 +60,22 @@ public class Rating {
 		this.rating = rating;
 	}
 
+	/**
+	 * Return the average skill value of the player scaled down
+	 * to the scale used by the algorithm's internal workings.
+	 * 
+	 * @return double
+	 */
 	public double getGlicko2Rating() {
-		// return the average skill value of the player scaled down appropriate to the Glicko2 algorithm.
 		return RatingCalculator.convertRatingToGlicko2Scale(this.rating);
 	}
 
+	/**
+	 * Set the average skill value, taking in a value in Glicko2 scale.
+	 * 
+	 * @param double
+	 */
 	public void setGlicko2Rating(double rating) {
-		// take the rating in Glicko2 scale and scale it up to the original Glicko scale.
 		this.rating = RatingCalculator.convertRatingToOriginalGlickoScale(rating);
 	}
 
@@ -81,16 +95,29 @@ public class Rating {
 		this.ratingDeviation = ratingDeviation;
 	}
 
+	/**
+	 * Return the rating deviation of the player scaled down
+	 * to the scale used by the algorithm's internal workings.
+	 * 
+	 * @return double
+	 */
 	public double getGlicko2RatingDeviation() {
-		// return the rating deviation of the player scaled down appropriate to the Glicko2 algorithm.
 		return RatingCalculator.convertRatingDeviationToGlicko2Scale( ratingDeviation );
 	}
 
+	/**
+	 * Set the rating deviation, taking in a value in Glicko2 scale.
+	 * 
+	 * @param double
+	 */
 	public void setGlicko2RatingDeviation(double ratingDeviation) {
-		// take the rating deviation in Glicko2 scale and scale it up to the original Glicko scale.
 		this.ratingDeviation = RatingCalculator.convertRatingDeviationToOriginalGlickoScale( ratingDeviation );
 	}
 
+	/**
+	 * Used by the calculation engine, to move interim calculations into their "proper" places.
+	 * 
+	 */
 	public void finaliseRating() {
 		this.setGlicko2Rating(workingRating);
 		this.setGlicko2RatingDeviation(workingRatingDeviation);
@@ -101,13 +128,18 @@ public class Rating {
 		this.setWorkingVolatility(0);
 	}
 	
-	public String dump() {
+	/**
+	 * Returns a formatted rating for inspection
+	 * 
+	 * @return {ratingUid} / {ratingDeviation} / {volatility} / {numberOfResults}
+	 */
+	@Override
+	public String toString() {
 		return uid + " / " +
 				rating + " / " +
 				ratingDeviation + " / " +
 				volatility + " / " +
 				numberOfResults;
-
 	}
 	
 	public int getNumberOfResults() {

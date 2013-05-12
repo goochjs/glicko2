@@ -4,7 +4,6 @@
  * The licence covering the contents of this file is described in the file LICENCE.txt,
  * which should have been included as part of the distribution containing this file.
  */
-
 package org.goochjs.glicko2;
 
 import static org.junit.Assert.assertEquals;
@@ -26,12 +25,12 @@ public class TestGlicko2 {
 	private Rating player4 = new Rating("player4", ratingSystem);
 	private Rating player5 = new Rating("player5", ratingSystem); // this player won't compete during the test
 	
+	/**
+	 * This test uses the values from the example towards the end of Glickman's paper as a simple test of the calculation engine
+	 * In addition, we have another player who doesn't compete, in order to test that their deviation will have increased over time.
+	 */
 	@Test
 	public void test() {
-		/**
-		 * This test uses the values from the example towards the end of Glickman's paper as a simple test of the calculation engine
-		 * In addition, we have another player who doesn't compete, in order to test that their deviation will have increased over time
-		 */
 		initialise();
 		printResults("Before");
 
@@ -74,17 +73,10 @@ public class TestGlicko2 {
 
 	private void printResults(String text) {
 		System.out.println(text + "...");
-		println(player1);
-		println(player2);
-		println(player3);
-		println(player4);
-		println(player5);
-	}
-
-	private void println(Rating player) {
-		System.out.println(player.getUid() + " "
-				+ player.getRating() + " / "
-				+ player.getRatingDeviation() + " / "
-				+ player.getVolatility());
+		System.out.println(player1);
+		System.out.println(player2);
+		System.out.println(player3);
+		System.out.println(player4);
+		System.out.println(player5);
 	}
 }
