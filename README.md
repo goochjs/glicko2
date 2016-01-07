@@ -1,7 +1,7 @@
 glicko2
 =======
 
-OSGi-compatible Java implementation of the [Glicko-2 rating algorithm](http://www.glicko.net/glicko/glicko2.pdf/ "Example of the Glicko-2 system")
+OSGi-compatible Java implementation of the [Glicko-2 rating algorithm](http://www.glicko.net/glicko/glicko2.pdf "Example of the Glicko-2 system")
 
 To use:
 *   instantiate a _RatingCalculator_ object
