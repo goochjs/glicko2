@@ -6,6 +6,9 @@
  */
 package org.goochjs.glicko2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -78,5 +81,32 @@ public class TestGlicko2 {
 		System.out.println(player3);
 		System.out.println(player4);
 		System.out.println(player5);
+	}
+
+	@Test
+	public void scaleTest() {
+		int playerCount = 100000;
+		List<Rating> players = new ArrayList(playerCount);
+
+		results = new RatingPeriodResults();
+
+		for (int i = 0; i < playerCount; i++) {
+			Rating player = new Rating("player" + i, ratingSystem);
+			player.setRating(1000.0 + i % 1000);
+			players.add(player);
+		}
+
+		long start = System.currentTimeMillis();
+
+		for (int i = 0; i < playerCount; i++) {
+			results.addResult(players.get(i), players.get((i + 1) % playerCount));
+			results.addResult(players.get(i), players.get((i + 2) % playerCount));
+		}
+
+		ratingSystem.updateRatings(results);
+
+		long end = System.currentTimeMillis();
+
+		System.out.println("Execution time: " + (end - start));
 	}
 }
