@@ -61,8 +61,10 @@ public class RatingCalculator {
 	 */
 	public void updateRatings(RatingPeriodResults results) {
 		for ( Rating player : results.getParticipants() ) {
-			if ( results.getResults(player).size() > 0 ) {
-				calculateNewRating(player, results.getResults(player));
+			List<Result> playerResults = results.getResults(player);
+
+			if ( !playerResults.isEmpty() ) {
+				calculateNewRating(player, playerResults);
 			} else {
 				// if a player does not compete during the rating period, then only Step 6 applies.
 				// the player's rating and volatility parameters remain the same but deviation increases

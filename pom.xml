@@ -7,7 +7,7 @@
 
 	<groupId>org.goochjs</groupId>
 	<artifactId>goochjs-glicko2</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<description>Glicko-2 rating system</description>
 	<name>glicko2</name>

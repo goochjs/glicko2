@@ -7,8 +7,11 @@
 package org.goochjs.glicko2;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,7 +20,7 @@ import java.util.Set;
  * @author Jeremy Gooch
  */
 public class RatingPeriodResults {
-	private List<Result> results = new ArrayList<Result>();
+	private Map<Rating, List<Result>> results = new HashMap<Rating, List<Result>>();
 	private Set<Rating> participants = new HashSet<Rating>();
 
 	
@@ -44,9 +47,7 @@ public class RatingPeriodResults {
 	 * @param loser
 	 */
 	public void addResult(Rating winner, Rating loser) {
-		Result result = new Result(winner, loser);
-		
-		results.add(result);
+		this.addResult(new Result(winner, loser));
 	}
 	
 	
@@ -57,12 +58,31 @@ public class RatingPeriodResults {
 	 * @param player2
 	 */
 	public void addDraw(Rating player1, Rating player2) {
-		Result result = new Result(player1, player2, true);
-		
-		results.add(result);
+		this.addResult(new Result(player1, player2, true));
 	}
-	
-	
+
+
+	private void addResult(Result result) {
+		List<Result> playerResults = results.get(result.getWinner());
+
+		if (playerResults == null) {
+			playerResults = new ArrayList<Result>();
+			results.put(result.getWinner(), playerResults);
+		}
+
+		playerResults.add(result);
+
+		playerResults = results.get(result.getLoser());
+
+		if (playerResults == null) {
+			playerResults = new ArrayList<Result>();
+			results.put(result.getLoser(), playerResults);
+		}
+
+		playerResults.add(result);
+	}
+
+
 	/**
 	 * Get a list of the results for a given player.
 	 * 
@@ -70,15 +90,13 @@ public class RatingPeriodResults {
 	 * @return List of results
 	 */
 	public List<Result> getResults(Rating player) {
-		List<Result> filteredResults = new ArrayList<Result>();
-		
-		for ( Result result : results ) {
-			if ( result.participated(player) ) {
-				filteredResults.add(result);
-			}
+		List<Result> playerResults = results.get(player);
+
+		if (playerResults != null) {
+			return playerResults;
 		}
-		
-		return filteredResults;
+
+		return Collections.emptyList();
 	}
 
 	
@@ -89,10 +107,7 @@ public class RatingPeriodResults {
 	 */
 	public Set<Rating> getParticipants() {
 		// Run through the results and make sure all players have been pushed into the participants set.
-		for ( Result result : results ) {
-			participants.add(result.getWinner());
-			participants.add(result.getLoser());
-		}
+		participants.addAll(results.keySet());
 
 		return participants;
 	}
